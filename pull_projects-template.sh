@@ -1,8 +1,6 @@
 #!/usr/bin/env sh
 set -euo pipefail
 
-GROUP="$GROUP"
-
 # Usage: ./pull_projects-$GROUP.sh [/path/to/dump]
 
 # use the first argument if provided, otherwise use the current working directory.
