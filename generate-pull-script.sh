@@ -24,10 +24,12 @@ glab repo list -g "$GROUP" --include-subgroups --per-page 1000 --output json \
   (
     .[] | select(keep)
     | (.name_with_namespace                 # subgroup/repo name
-         | split("/") | .[1:] | join("/")   # trim off the top-level group name
+         | split("/")
+         | .[1:]                            # trim off the top-level group name
+         | map(gsub("^\\s+|\\s+$"; ""))     # trim whitespace
+         | join("/")   
          | gsub(" *- *"; "-")               # normalize " - " into "-"
-         | gsub(" */ *"; "/")               # normalize " / " into "/"
-         | gsub("[ \t\n]"; "_")             # replace whitespace, tabs and newline with underscores for a safe folder name
+         | gsub("[ \t\n]"; "_")             # replace remaining whitespace, tabs and newline with underscores for a safe folder name
       ) as $dest
     | "update_repo " + (.ssh_url_to_repo | @sh) + " " + ($dest | @sh) # shell-escape/quote the path and folder name
   )
