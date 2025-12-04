@@ -43,4 +43,3 @@ update_repo() {
     git clone "$url" "$dest"
   fi
 }
-
