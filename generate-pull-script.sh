@@ -16,24 +16,25 @@ OUT_FILE="pull_projects-${GROUP}.sh"
 envsubst '$GROUP' < pull_projects-template.sh > "$OUT_FILE"
 
 # List all repos in the group (including subgroups) as JSON, then transform JSON into bash script lines
-glab repo list -g "$GROUP" --include-subgroups --per-page 1000 --output json \
-| jq -r --arg group "$GROUP" '
-  # mark as `keep` only repost not scheduled for deletion
-  def keep: (.ssh_url_to_repo | contains("deletion_scheduled") | not);
-
-  (
-    .[] | select(keep)
-    | (.name_with_namespace                 # subgroup/repo name
-         | split("/")
-         | .[1:]                            # trim off the top-level group name
-         | map(gsub("^\\s+|\\s+$"; ""))     # trim whitespace
-         | join("/")   
-         | gsub(" *- *"; "-")               # normalize " - " into "-"
-         | gsub("[ \t\n]"; "_")             # replace remaining whitespace, tabs and newline with underscores for a safe folder name
-      ) as $dest
-    | "update_repo " + (.ssh_url_to_repo | @sh) + " " + ($dest | @sh) # shell-escape/quote the path and folder name
-  )
-' >> "$OUT_FILE"
+glab repo list -g "$GROUP" \
+  --include-subgroups \
+  --archived=false \
+  --per-page 10000 \
+  --output json \
+  | jq -r --arg group "$GROUP" '
+    (
+      .[] 
+      | (.name_with_namespace                 # subgroup/repo name
+          | split("/")
+          | .[1:]                            # trim off the top-level group name
+          | map(gsub("^\\s+|\\s+$"; ""))     # trim whitespace
+          | join("/")   
+          | gsub(" *- *"; "-")               # normalize " - " into "-"
+          | gsub("[ \t\n]"; "_")             # replace remaining whitespace, tabs and newline with underscores for a safe folder name
+        ) as $dest
+      | "update_repo " + (.ssh_url_to_repo | @sh) + " " + ($dest | @sh) # shell-escape/quote the path and folder name
+    )
+  ' >> "$OUT_FILE"
 
 # Make the generated script executable
 chmod +x "$OUT_FILE"
