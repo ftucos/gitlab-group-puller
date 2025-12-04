@@ -32,7 +32,7 @@ Specify a destination root directory (if no arguments is passed it defaults to `
 
 The script will **warn you once** where it’s going to dump everything and ask for a single confirmation before proceeding.
 
-## What it does
+### What it does
 
 For each repo in your GitLab group:
 
@@ -40,6 +40,8 @@ For each repo in your GitLab group:
 - Else → `git clone <ssh_url> <dest>`
 
 ### Destination path (subgroups preserved)
+
+The generated script **drops the top-level namespace component**, so `group/subgroup/repo` is saved as `<dest>/subgroup/repo` (not `<dest>/group/subgroup/repo`)
 
 The script uses GitLab’s `path_with_namespace` to determine the local folder path. This means:
 
