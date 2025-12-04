@@ -20,7 +20,6 @@ printf '%s%sGitLab Group Puller%s\n' "$cyan" "$bold" "$reset"
 printf '%s\n' "$line"
 printf '%sGroup:%s        %s\n' "$bold" "$reset" "$GROUP"
 printf '%sDestination:%s  %s\n' "$bold" "$reset" "$CLONE_ROOT"
-printf '%sOutput tree:%s  %s/%s\n' "$bold" "$reset" "$CLONE_ROOT" "$GROUP"
 printf '%s\n\n' "$line"
 printf '%s%sProceed?%s Type %syes%s to continue: ' "$yellow" "$bold" "$reset" "$bold" "$reset"
 
