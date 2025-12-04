@@ -11,10 +11,10 @@ It will skip repositories marked as `deletion_scheduled`.
 #### 1) Generate a pull script for a group
 
 ```
-./generate-pull-script.sh my_project
+./generate-pull-script.sh group_name
 ```
 
-This creates: `pull_projects-my_project.sh`
+This creates: `pull_projects-group_name.sh`
 
 #### 2) Run the generated pull script
 
