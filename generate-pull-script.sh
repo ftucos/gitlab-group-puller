@@ -2,30 +2,18 @@
 
 set -ue -o pipefail
 
-# GitLab group to list repositories from
-GROUP="breast_cancer_CDK12"
+# Usage: ./generate-pull-script.sh <gitlab_group>
+export GROUP="${1:-}"
+if [[ -z "$GROUP" ]]; then
+  echo "Usage: $0 <gitlab_group>" >&2
+  exit 1
+fi
 
 # Output path for the generated bash script (note: "~" won’t expand inside quotes)
 OUT_FILE="pull_projects-${GROUP}.sh"
 
-# Write the script header
-cat > "$OUT_FILE" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-update_repo() {
-  local url="$1"
-  local dest="$2"
-
-  if [ -d "$dest/.git" ]; then
-    git -C "$dest" pull --ff-only
-  else
-    mkdir -p "$(dirname "$dest")"
-    git clone "$url" "$dest"
-  fi
-}
-
-EOF
+# Write the script header passing the group name
+envsubst '$GROUP' < pull_projects-template.sh > "$OUT_FILE"
 
 # List all repos in the group (including subgroups) as JSON, then transform JSON into bash script lines
 glab repo list -g "$GROUP" --include-subgroups --per-page 1000 --output json \
