@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 set -euo pipefail
 
 GROUP="$GROUP"
@@ -10,19 +10,26 @@ GROUP="$GROUP"
 CLONE_ROOT="${1:-$PWD}"
 CLONE_ROOT="$(cd "$CLONE_ROOT" && pwd -P)"
 
-# Ask confirmation about output directory
-echo "About to clone/pull GitLab group: $GROUP"
-echo "Destination root:"
-echo "  $CLONE_ROOT"
-echo "Everything will be placed under:"
-echo "  $CLONE_ROOT/$GROUP"
-echo
-read -r -p "Proceed? Type 'yes' to continue: " reply
+# Ask confirmation about output directory (prettier terminal output)
+line='------------------------------------------------------------'
+bold=$(tput bold 2>/dev/null || true); reset=$(tput sgr0 2>/dev/null || true)
+cyan=$(tput setaf 6 2>/dev/null || true); yellow=$(tput setaf 3 2>/dev/null || true)
+
+printf '\n%s\n' "$line"
+printf '%s%sGitLab Group Puller%s\n' "$cyan" "$bold" "$reset"
+printf '%s\n' "$line"
+printf '%sGroup:%s        %s\n' "$bold" "$reset" "$GROUP"
+printf '%sDestination:%s  %s\n' "$bold" "$reset" "$CLONE_ROOT"
+printf '%sOutput tree:%s  %s/%s\n' "$bold" "$reset" "$CLONE_ROOT" "$GROUP"
+printf '%s\n\n' "$line"
+printf '%s%sProceed?%s Type %syes%s to continue: ' "$yellow" "$bold" "$reset" "$bold" "$reset"
+
+read -r reply
 if [[ "$reply" != "yes" ]]; then
-  echo "Aborted."
+  printf '\n%sAborted.%s\n' "$yellow" "$reset"
   exit 0
 fi
-echo
+printf '\n'
 
 # Function to clone or update a repository
 update_repo() {
