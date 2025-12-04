@@ -2,9 +2,11 @@
 
 This is a small utility to **generate a bash script** that clones all repositories from a GitLab group, preserving the subgroup folder structure.  
 
+For each repo in your GitLab group:
+
 When re-run, it will `git pull --ff-only` for repos that already exist locally, otherwise it will `git clone`.
 
-It will skip repositories marked as `deletion_scheduled`.
+It will skip archived repos.
 
 ## Usage
 
@@ -31,13 +33,6 @@ Specify a destination root directory (if no arguments is passed it defaults to `
 ```
 
 The script will **warn you once** where it’s going to dump everything and ask for a single confirmation before proceeding.
-
-### What it does
-
-For each repo in your GitLab group:
-
-- If `<dest>/.git` exists → `git -C <dest> pull --ff-only`
-- Else → `git clone <ssh_url> <dest>`
 
 ### Destination path (subgroups preserved)
 
