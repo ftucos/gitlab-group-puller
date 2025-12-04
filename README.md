@@ -8,23 +8,23 @@ It will skip repositories marked as `deletion_scheduled`.
 
 ## Usage
 
-#### 1) Generate a pull script for a group
+#### 1) Authenticate `glab` (only once)
+
+```
+glab auth login
+```
+
+#### 2) Generate a pull script for a group
 
 ```
 ./generate-pull-script.sh group_name
 ```
 
-This creates: `pull_projects-group_name.sh`
+This produces: `pull_projects-group_name.sh`
 
-#### 2) Run the generated pull script
+#### 3) Run the generated pull script
 
-By default it dumps into the current working directory:
-
-```
-./pull_projects-pece_collab.sh
-```
-
-Or specify a destination root directory:
+Specify a destination root directory (if no arguments is passed it defaults to `$PWD`):
 
 ```
 ./pull_projects-pece_collab.sh ~/Projects
@@ -39,7 +39,7 @@ For each repo in your GitLab group:
 - If `<dest>/.git` exists → `git -C <dest> pull --ff-only`
 - Else → `git clone <ssh_url> <dest>`
 
-## Name normalization
+### Destination path (subgroups preserved)
 
 The script uses GitLab’s `path_with_namespace` to determine the local folder path. This means:
 
@@ -50,16 +50,32 @@ The script uses GitLab’s `path_with_namespace` to determine the local folder p
 ## Requirements
 
 - `envsubst` (from `gettext`)
-- `git`
 - [`glab`](https://gitlab.com/gitlab-org/cli) (GitLab CLI)
 - `jq`
+- `git`
+
+#### Install examples
 
 On macOS (Homebrew):
 ```bash
 brew install gettext git glab jq 
 ```
 
-## GitLab SSH setup
+With conda/mamba:
+
+```bash
+mamba install -c conda-forge gettext git glab jq
+```
+
+Than authenticate in glab
+
+```bash
+glab auth login
+```
+
+If you opt to use SSH as the default git protocol, here is how to set it up:
+
+### Setup GitLab protocol: SSH
 
 #### 1) Generate an SSH key dedicated for GitLab
 
