@@ -1,44 +1,49 @@
-# GitLab Group Puller 
+# GitLab Group Puller
 
-This is a small utility to **generate a bash script** that clones all repositories from a GitLab group, preserving the subgroup folder structure.  
+A single-command utility to **clone and/or update all repositories** from a GitLab group, preserving the subgroup folder structure.
 
-For each repo in your GitLab group:
+- **New** repos are `git cloned`.
+- **Existing** repos are `git pull --ff-only`.
+- **Archived** repos are skipped.
 
-When re-run, it will `git pull --ff-only` for repos that already exist locally, otherwise it will `git clone`.
-
-It will skip archived repos.
+Before any Git operation a **preview log** is generated so you can review exactly what will happen.
 
 ## Usage
 
 #### 1) Authenticate `glab` (only once)
 
-```
+```bash
 glab auth login
 ```
 
-#### 2) Generate a pull script for a group
+#### 2) Pull a group
 
-```
-./generate-pull-script.sh group_name
-```
-
-This produces: `pull_projects-group_name.sh`
-
-#### 3) Run the generated pull script
-
-Specify a destination root directory (if no arguments is passed it defaults to `$PWD`):
-
-```
-./pull_projects-pece_collab.sh ~/Projects
+```bash
+./pull_projects.sh <gitlab_group> [/path/to/destination]
 ```
 
-The script will **warn you once** where it’s going to dump everything and ask for a single confirmation before proceeding.
+| Argument | Required | Default |
+|---|---|---|
+| `gitlab_group` | yes | — |
+| `/path/to/destination` | no | current directory (`$PWD`) |
+
+**Example:**
+
+```bash
+./pull_projects.sh pece_lab_workspace ~/Projects
+```
+
+The script will:
+
+1. Fetch the full repository list from the GitLab API.
+2. Write a timestamped preview log (`pull_projects-<group>-<timestamp>.log`) showing every repo's destination and whether it will be cloned or pulled.
+3. Display a summary and ask for confirmation before proceeding.
 
 ### Destination path (subgroups preserved)
 
-The generated script **drops the top-level namespace component**, so `group/subgroup/repo` is saved as `<dest>/subgroup/repo` (not `<dest>/group/subgroup/repo`)
+The script **drops the top-level namespace component**, so `group/subgroup/repo` is saved as `<dest>/subgroup/repo` (not `<dest>/group/subgroup/repo`).
 
-The script uses GitLab’s `path_with_namespace` to determine the local folder path. This means:
+The local folder path is derived from `name_with_namespace`. This means:
 
 - Casing is preserved (uppercase/lowercase remains as-is)
 - Dashes/underscores are preserved
@@ -46,7 +51,6 @@ The script uses GitLab’s `path_with_namespace` to determine the local folder p
 
 ## Requirements
 
-- `envsubst` (from `gettext`)
 - [`glab`](https://gitlab.com/gitlab-org/cli) (GitLab CLI)
 - `jq`
 - `git`
@@ -54,17 +58,18 @@ The script uses GitLab’s `path_with_namespace` to determine the local folder p
 #### Install examples
 
 On macOS (Homebrew):
+
 ```bash
-brew install gettext git glab jq 
+brew install git glab jq
 ```
 
 With conda/mamba:
 
 ```bash
-mamba install -c conda-forge gettext git glab jq
+mamba install -c conda-forge git glab jq
 ```
 
-Than authenticate in glab
+Then authenticate in glab:
 
 ```bash
 glab auth login
@@ -76,7 +81,7 @@ If you opt to use SSH as the default git protocol, here is how to set it up:
 
 #### 1) Generate an SSH key dedicated for GitLab
 
-```
+```bash
 ssh-keygen -t ed25519 -C "your.email@example.com" -f ~/.ssh/gitlab
 ```
 
@@ -94,7 +99,7 @@ Then in GitLab go to:
 - **User Settings → SSH Keys → Add new key**
 - Paste the key and save.
 
-#### 3) Configure SSH to use your key (your approach)
+#### 3) Configure SSH to use your key
 
 Add this to `~/.ssh/config`:
 
@@ -109,7 +114,7 @@ Host gitlab.com
 
 #### 4) Test SSH authentication
 
-```
+```bash
 ssh -T git@gitlab.com
 ```
 
