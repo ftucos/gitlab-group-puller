@@ -119,3 +119,40 @@ ssh -T git@gitlab.com
 ```
 
 You should see a `Welcome to GitLab,` message indicating authentication succeeded.
+
+## Shared HPC environments
+
+On a shared HPC where multiple users commit and pull into the same destination folder, git may throw an error:
+
+```
+fatal: unsafe repository ('/path/to/destination/repo' is owned by someone else)
+```
+
+To fix this, mark the entire destination tree as safe in your git config:
+
+```bash
+git config --global --add safe.directory /path/to/destination/*
+```
+
+> **Note:** The wildcard (`/*`) syntax requires **git ≥ 2.46.0**.
+
+On older versions of git you have two alternatives:
+
+1. **Trust all directories globally** (less secure):
+
+   ```bash
+   git config --global --add safe.directory "*"
+   ```
+
+2. **Register each repository individually:**
+
+   ```bash
+   find /path/to/destination -type d -name .git -print0 \
+     | xargs -0 -I{} git config --global --add safe.directory "$(dirname "{}")"
+   ```
+
+It is also useful to tell git to ignore file permission (mode) changes, which are common on shared filesystems:
+
+```bash
+git config --global core.fileMode false
+```
